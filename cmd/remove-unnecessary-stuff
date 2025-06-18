@@ -1,0 +1,14 @@
+#!/bin/bash
+set -eu
+
+find "." -name "Elmjutsu*" -type f -delete
+find "." -name ".DS_Store" -type f -delete
+
+# We remove some chached Elm file to make sure that the first compilation
+# is fresh.
+#
+# We don't need Elm's "artifacts.dat", but we need Elm's "registry.dat"
+# otherwise a connection to internet is required.
+#
+# find "elm_modules" -name "artifacts.dat" -type f -delete
+# rm -rf elm-stuff

@@ -1,0 +1,10 @@
+#!/bin/bash
+set -eu
+
+cmd/remove-unnecessary-stuff
+# elm-review seems not respecting the ELM_HOME variable to search for
+# dependencies :-(
+# elm-review doesn't work well with "ELM_HOME=elm_modules".
+# It tries to be too smart. So elm-review will not work without internet, but
+# not a big deal.
+npx elm-review@2.13.2 --fix-all --allow-remove-files

@@ -1,0 +1,4 @@
+#!/bin/bash
+set -eu
+
+npx elm-format elm-allocation --yes

@@ -1,0 +1,130 @@
+#!/bin/bash
+set -eu
+
+# Variables
+
+ENV=${BUILD_ENVIRONMENT:-localhost}
+HORIZON_BUILD_ID=${BUILD_ID:-"Build ID not available"}
+VERSION=$(cat package.json \
+  | grep version \
+  | head -1 \
+  | awk -F: '{ print $2 }' \
+  | sed 's/[",]//g' \
+  | tr -d '[[:space:]]')                                      # Example: 2.10.0
+FOLDER_CURRENT=$(pwd)
+SERVICE=$(basename $FOLDER_CURRENT)
+TENANT=$(basename $(dirname $FOLDER_CURRENT))
+SINGULARITY_REPO_NAME="singularity"
+S3_BUCKET=$(printenv NX_S3_ENDPOINT_APP)             || true
+REPO=$(basename $(git rev-parse --show-toplevel))
+BRANCH_ENV=$(printenv BRANCH)                        || true
+BRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p') || true
+COMMIT=$(git rev-parse --short HEAD)                 || true
+BUILD_EPOCH=$(date +%s)                                       # Example: 1674303385
+BUILD_TIMESTAMP_ISO=$(date +"%Y-%m-%dT%H:%M:%S%z")            # Example: 2023-01-21T21:16:25+0900
+BUILD_TIMESTAMP=$(date)                                       # Example: Sat Jan 21 21:16:25 JST 2023
+META="{\"commit\":\"${COMMIT}\",\"branch\":\"${BRANCH}\",\"version\":\"${VERSION}\",\"datetime\":\"${BUILD_TIMESTAMP_ISO}\",\"posix\":${BUILD_EPOCH},\"tenant\":\"${TENANT}\",\"service\":\"${SERVICE}\"}"
+
+# The following script come from `public/test-attaching-meta.html`
+# minified using https://www.toptal.com/developers/javascript-minifier
+# It is used to decide where to attach some value that need to
+# be in the global space. Ideally we would attach them to `Elm` but
+# elm-watch doens't like that.
+MY_GLOBAL_META="!function(){var o;'boolean'==typeof __using_elm_watch&&__using_elm_watch?o=ElmApps=window.ElmApps||{}:((Elm=window.Elm||{}).r10=Elm.r10||{},o=Elm.r10),o.meta=${META}}();"
+
+# Changing the Elm home directory to avoid possible conflicts between the Elm
+# caching system and the Nx/Jenkins caching system.
+export ELM_HOME=${HOME}/.elm_singularity_${SERVICE}
+
+BASE_HREF="./"
+
+if [[ -z "${BRANCH_ENV}" ]]; then
+  IS_SINGULARITY_PIPELINE="false"
+else
+  IS_SINGULARITY_PIPELINE="true"
+fi
+
+# Folders
+
+FOLDER_ROOT="."
+FOLDER_DIST="${FOLDER_ROOT}/dist/apps/${TENANT}/${SERVICE}"
+FOLDER_TEMP="${FOLDER_DIST}/TEMP"
+FOLDER_NODE_MODULES="${FOLDER_ROOT}/node_modules"
+
+# Tools
+
+ELM=$FOLDER_NODE_MODULES/.bin/elm
+ELM_GO=$FOLDER_NODE_MODULES/.bin/elm-go
+ELM_JSON=$FOLDER_NODE_MODULES/.bin/elm-json
+ELM_DOC_PREVIEW=$FOLDER_NODE_MODULES/.bin/elm-doc-preview
+ELM_REVIEW=$FOLDER_NODE_MODULES/.bin/elm-review
+ELM_FORMAT=$FOLDER_NODE_MODULES/.bin/elm-format
+ELM_TEST=$FOLDER_NODE_MODULES/.bin/elm-test
+ELM_WATCH=$FOLDER_NODE_MODULES/.bin/elm-watch
+NODEAPP_TERSER=$FOLDER_NODE_MODULES/.bin/terser
+NODEAPP_ESBUILD=$FOLDER_NODE_MODULES/.bin/esbuild
+NODEAPP_REPLACE=$FOLDER_NODE_MODULES/.bin/replace
+NODEAPP_HTML_MINIFIER=$FOLDER_NODE_MODULES/.bin/html-minifier
+NODEAPP_NPM_CHECK_UPDATES=$FOLDER_NODE_MODULES/.bin/npm-check-updates
+NODEAPP_WEBPACK=$FOLDER_NODE_MODULES/.bin/webpack-cli
+NODEAPP_HTTP_SERVER=$FOLDER_NODE_MODULES/.bin/http-server
+
+# Colors
+# https://dev.to/ifenna__/adding-colors-to-bash-scripts-48g4
+
+RED="\e[31m"
+GREEN="\e[32m"
+YELLOW="\e[33m"
+BLUE="\e[34m"
+MAGENTA="\e[35m"
+CYAN="\e[36m"
+GRAY="\e[90m"
+BLACK="\e[30m"
+
+LIGHT_RED="\e[91m"
+LIGHT_GREEN="\e[92m"
+LIGHT_YELLOW="\e[93m"
+LIGHT_BLUE="\e[94m"
+LIGHT_MAGENTA="\e[95m"
+LIGHT_CYAN="\e[96m"
+LIGHT_GRAY="\e[37m"
+
+POINT="✨ "
+STOP="\e[0m"
+PRIMARY=$YELLOW
+SECONDARY=$BLUE
+DONE=" ${SECONDARY}done${STOP}\n"
+
+
+printf "\n"
+printf "${BLUE}                      ▄▄▗   ${STOP}\n"
+printf "${CYAN}                      ▙▖▐▗▄▄${STOP}\n"
+printf "${GREEN} 🌳 🌳  , ,.   🌳     ▙▄▐▐▐▐ 🦌 ,,    🌳  ,🌳   ${STOP}\n"
+printf "${GREEN}▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔${STOP}\n"
+TEXT="${TENANT} ♦ ${SERVICE} ♦ ${COMMIT} ♦ ${VERSION} ♦ ${ENV} ♦ ${HORIZON_BUILD_ID}"
+printf "${BLUE}%*s${STOP}\n" $(((${#TEXT}+48)/2)) "${TEXT}"
+printf " \n"
+
+function devToProdHtml {
+    SOURCE=$1
+    TARGET=$2
+
+    COMMAND="cmd/replace.js '${SOURCE}' '${TARGET}' '["
+    COMMAND="${COMMAND} [ \"(<script class=\\\"dev-only\\\".*</script>)\", \"<!-- \$1 -->\" ],"
+    COMMAND="${COMMAND} [ \"<!-- prod-only (.*) -->\" , \"\$1\" ],"
+    COMMAND="${COMMAND} [ \"\\\\$\\\\{COMMIT\\\\}\" , \"${COMMIT}\"  ],"
+    COMMAND="${COMMAND} [ \"\\\\$\\\\{VERSION\\\\}\", \"${VERSION}\" ]"
+    COMMAND="${COMMAND} ]'"
+
+    eval $COMMAND
+
+    # $NODEAPP_HTML_MINIFIER -o $TARGET $TARGET --remove-comments --minify-css --minify-js # --collapse-whitespace
+    $NODEAPP_HTML_MINIFIER -o $TARGET $TARGET --remove-comments --minify-css # --minify-js # --collapse-whitespace
+
+    # Remove empty lines
+    #
+    # COMMAND="cmd/replace.js '${TARGET}' '${TARGET}' '["
+    # COMMAND="${COMMAND} [ \"^\\\\s*\$\n\", \"\", \"gm\" ]"
+    # COMMAND="${COMMAND} ]'"
+    # eval $COMMAND
+}

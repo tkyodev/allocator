@@ -1,0 +1,6 @@
+#!/bin/bash
+set -eu
+
+# The "--packageFile package.json" argument is a fixer for Windows, please see:
+# https://github.com/raineorshine/npm-check-updates/issues/136
+npx ncu --packageFile package.json

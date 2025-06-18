@@ -1,0 +1,26 @@
+{
+  "name": "allocation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "backend-server": "cmd/backend-server.js",
+    "frontend-server": "npx serve -p 8002 ./build",
+    "start": "cmd/start",
+    "build": "cmd/build"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.20.2",
+    "@playwright/test": "^1.52.0",
+    "concurrently": "^9.1.2",
+    "elm": "^0.19.1-6",
+    "elm-format": "^0.8.7",
+    "elm-review": "^2.13.2",
+    "elm-watch": "^2.0.0-beta.6",
+    "esbuild": "^0.25.5",
+    "run-pty": "^5.0.0"
+  }
+}
