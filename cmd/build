@@ -6,27 +6,30 @@ function log {
     printf "\e[1;34m[build]\e[0m\e[1;94m ${1}\e[0m\n"
 }
 
-rm -rf build
+TARGET="docs"
+
+rm -rf ${TARGET}
 rm -rf build-generated
-mkdir -p build
+mkdir -p ${TARGET}
 mkdir -p build-generated
 
 source cmd/config
 echo "window.allocation = window.allocation || {}; window.allocation.meta=${META}" > "build-generated/GENERATED-meta.js"
-echo "meta=${META}" > "build/meta.js"
+echo "meta=${META}" > "${TARGET}/meta.js"
 # echo ${MY_GLOBAL_META} > "build-generated/GENERATED-meta-internal.js"
 
 log "Compiling Elm projects..."
 npx elm make elm-allocation/src/Allocation.elm        --output=build-generated/GENERATED-allocation.js     --optimize > /dev/null
 
 log "Minifing JavaScript files..."
-node cmd/minify.js "Allocation"     ${VERSION} "Commit ${COMMIT} - Built ${BUILD_TIMESTAMP_ISO}" "GENERATED-allocation.js"     "starter-allocation.js" "MINIFIED-allocation.js"
+node cmd/minify.js "Allocation" ${VERSION} "Commit ${COMMIT} - Built ${BUILD_TIMESTAMP_ISO}" "GENERATED-allocation.js" "starter-allocation.js" "MINIFIED-allocation.js"
 
 log "Copying files..."
-cp build-generated/MINIFIED-allocation.js     build/allocation.min.js 
-cp public/index.html               build/index.html
+cp build-generated/MINIFIED-allocation.js ${TARGET}/allocation.min.js 
+cp public/index.html                      ${TARGET}/index.html
+cp public/favicon.ico                     ${TARGET}/favicon.ico
 
 log "Files available in the 'build' folder:"
 printf "\n\e[1;34m"
-ls -lR build
+ls -lR ${TARGET}
 printf "\n"

@@ -4,7 +4,7 @@ const { transformCode, transformElmCode } = require("./transformer");
 const codeAll = 
     [ fs.readFileSync(`./build-generated/GENERATED-meta.js`, "utf8")
     , transformElmCode(fs.readFileSync(`./build-generated/${process.argv[5]}`, "utf8"))
-    , fs.readFileSync(`./public/js/${process.argv[6]}`, "utf8")
+    , fs.readFileSync(`./public/${process.argv[6]}`, "utf8")
     ].join(";");
 const result = transformCode(
     { code: codeAll
