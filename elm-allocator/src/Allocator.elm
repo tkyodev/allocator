@@ -1,60 +1,43 @@
-module Allocation exposing (main)
+module Allocator exposing (main)
 
 -- https://strapi.io/
 -- https://jsoneditoronline.org/
 -- https://jsonsilo.com/
 
-import Allocation.Confluence
-import Allocation.Types exposing (..)
-import Allocation.View
+import Allocator.Codecs
+import Allocator.Confluence
+import Allocator.DataManipulation
+import Allocator.Types exposing (..)
+import Allocator.View
 import Browser
 import Browser.Events
-import Codec
 import Dict
-import Generic.Json
-import Generic.Yaml
-import Html
-import Http
 import Iso8601
-import Json.Decode
 import Process
 import Task
 import Time
 import Url
-import Yaml.Decode
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
-        m : Saved {}
-        m =
-            flags.saved
-                |> Generic.Yaml.decode
-                |> Result.map Generic.Json.encode
-                |> (\res ->
-                        case res of
-                            Err err ->
-                                Err (Yaml.Decode.errorToString err)
-
-                            Ok ok ->
-                                case Codec.decodeValue Allocation.View.codecSaved ok of
-                                    Err err2 ->
-                                        Err (Json.Decode.errorToString err2)
-
-                                    Ok ok2 ->
-                                        Ok ok2
-                   )
+        saved : Saved {}
+        saved =
+            Allocator.Codecs.decodeSaved
+                { savedAsString = flags.saved
+                , dataFormat = Allocator.Codecs.defaultSavedDataformat
+                }
                 |> Result.withDefault defaultSaved
     in
-    ( { people = m.people
+    ( { people = saved.people
       , x = 0
       , y = 0
       , scale = 0.7
-      , projects = m.projects
+      , projects = saved.projects
       , state = AllInCenter
-      , showSaved = False
-      , initialFlags = flags
+      , showCharts = True
+      , flags = flags
       , posix = Time.millisToPosix flags.posix
       , currentDate =
             flags.posix
@@ -79,78 +62,59 @@ init flags =
       , gridSize = 20
       , gridSnap = True
       , savedCounter = 0
+      , latestSavedAsYaml = flags.saved
       }
-    , Task.perform (\_ -> ChangeState OwnPosition) (Process.sleep 50)
+    , Task.perform (\_ -> ChangeState OwnPosition) (Process.sleep 100)
     )
 
 
 defaultSaved : Saved {}
 defaultSaved =
+    let
+        spacePeople : number
+        spacePeople =
+            480
+
+        spaceProject : number
+        spaceProject =
+            280
+    in
     { people =
         [ { id = "p01"
           , name = "Person A"
           , color = palette.lightBlue
           , allocations =
-                [ ( "2025-06-01"
-                  , [ ( "prj1", 70 )
-                    , ( "prj4", 30 )
-                    ]
-                  )
-                , ( "2025-06-17"
-                  , [ ( "prj1", 30 )
-                    , ( "prj3", 70 )
-                    ]
-                  )
+                [ ( "2025-06-01", [ ( "prj1", 30 ), ( "prj4", 70 ) ] )
+                , ( "2025-06-04", [ ( "prj1", 30 ), ( "prj2", 20 ), ( "prj4", 50 ) ] )
+                , ( "2025-06-06", [ ( "prj1", 10 ), ( "prj2", 30 ), ( "prj4", 60 ) ] )
+                , ( "2025-06-08", [ ( "prj1", 10 ), ( "prj3", 90 ) ] )
+                , ( "2025-06-10", [ ( "prj1", 40 ), ( "prj3", 60 ) ] )
+                , ( "2025-06-17", [ ( "prj1", 50 ), ( "prj3", 40 ), ( "prj5", 10 ) ] )
                 ]
-          , x = 86
-          , y = 77
+          , x = 80
+          , y = 80
           , hidden = False
           }
         , { id = "p02"
           , name = "Person B"
           , color = palette.orange
           , allocations =
-                [ ( "2025-06-16"
-                  , [ ( "prj2", 10 )
-                    , ( "prj3", 20 )
-                    , ( "prj4", 30 )
-                    , ( "prj5", 40 )
-                    ]
-                  )
+                [ ( "2025-06-10", [ ( "prj2", 5 ), ( "prj3", 25 ), ( "prj4", 30 ), ( "prj5", 40 ) ] )
+                , ( "2025-06-15", [ ( "prj2", 10 ), ( "prj3", 20 ), ( "prj4", 30 ), ( "prj5", 40 ) ] )
+                , ( "2025-06-20", [ ( "prj2", 20 ), ( "prj3", 50 ), ( "prj4", 30 ) ] )
                 ]
-          , x = 378
-          , y = 71
+          , x = 80 + spacePeople
+          , y = 80
           , hidden = False
           }
         , { id = "p03"
           , name = "Person C"
           , color = palette.limeGreen
           , allocations =
-                [ ( "2025-06-16"
-                  , [ ( "prj1", 20 )
-                    , ( "prj2", 60 )
-                    , ( "prj4", 20 )
-                    ]
-                  )
+                [ ( "2025-05-16", [ ( "prj1", 50 ), ( "prj2", 30 ), ( "prj4", 20 ) ] )
+                , ( "2025-06-16", [ ( "prj1", 20 ), ( "prj2", 60 ), ( "prj4", 20 ) ] )
                 ]
-          , x = 687
-          , y = 72
-          , hidden = False
-          }
-        , { id = "p04"
-          , name = "Person D"
-          , color = palette.coralLightRed
-          , allocations =
-                [ ( "2025-06-16"
-                  , [ ( "prj1", 30 )
-                    , ( "prj2", 20 )
-                    , ( "prj3", 10 )
-                    , ( "prj4", 30 )
-                    , ( "prj5", 10 )
-                    ]
-                  )
-                ]
-          , x = 1010
+          , x = 80 + (spacePeople * 2)
           , y = 80
           , hidden = False
           }
@@ -159,36 +123,36 @@ defaultSaved =
         [ { name = "Project A"
           , id = "prj1"
           , color = palette.lightBlue
-          , x = 82
-          , y = 563
+          , x = 80
+          , y = 540
           , hidden = False
           }
         , { name = "Project B"
           , id = "prj2"
           , color = palette.orange
-          , x = 396
-          , y = 563
+          , x = 80 + spaceProject
+          , y = 540
           , hidden = False
           }
         , { name = "Project C"
           , id = "prj3"
           , color = palette.darkerBlue
-          , x = 710
-          , y = 555
+          , x = 80 + (spaceProject * 2)
+          , y = 540
           , hidden = False
           }
         , { name = "Project D"
           , id = "prj4"
           , color = palette.coralLightRed
-          , x = 1021
-          , y = 563
+          , x = 80 + (spaceProject * 3)
+          , y = 540
           , hidden = False
           }
         , { name = "Project E"
           , id = "prj5"
           , color = palette.limeGreen
-          , x = 1320
-          , y = 566
+          , x = 80 + (spaceProject * 4)
+          , y = 540
           , hidden = False
           }
         ]
@@ -196,41 +160,94 @@ defaultSaved =
 
 
 palette :
-    { coralLightRed : String
-    , darkerBlue : String
-    , lightBlue : String
-    , limeGreen : String
-    , orange : String
+    { coralLightRed : ColorType
+    , darkerBlue : ColorType
+    , lightBlue : ColorType
+    , limeGreen : ColorType
+    , orange : ColorType
     }
 palette =
-    { lightBlue = "rgba(77, 199, 255, 0.7)"
-    , orange = "rgba(255, 153, 51, 0.7)"
-    , darkerBlue = "rgba(50, 120, 200, 0.7)"
-    , coralLightRed = "rgba(255, 80, 80, 0.7)"
-    , limeGreen = "rgba(102, 204, 0, 0.7)"
+    { lightBlue = ( 77, 199, 255 )
+    , orange = ( 255, 153, 51 )
+    , darkerBlue = ( 50, 120, 200 )
+    , coralLightRed = ( 255, 80, 80 )
+    , limeGreen = ( 102, 204, 0 )
     }
 
 
-data : String
-data =
-    """
-<!-- Confluence MACRO START -->
-<allocation-app></allocation-app>
-<script>
-    dataMacroId = "{{dataMacroId}}";
-    saved = `
-{{saved}}
-`;
-</script>
-<script src="https://tkyodev.github.io/allocation/allocation.min.js"></script>
-<!-- Confluence MACRO END -->
-"""
+update2 : Msg -> Model -> ( Model, Cmd Msg )
+update2 _ model =
+    case model.dashboardStatus of
+        EditingData { error } ->
+            case error of
+                Nothing ->
+                    ( { model
+                        | dashboardStatus =
+                            EditingData
+                                { dataAsString = Allocator.Codecs.encodeSavedToString model model.dataFormat
+                                , error = Nothing
+                                }
+                      }
+                    , Cmd.none
+                    )
+
+                Just _ ->
+                    -- It is in error mode, we do not overwrite it
+                    ( model, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SaveResponse result ->
+        EditData dataAsString ->
+            case Allocator.Codecs.decodeSaved { savedAsString = dataAsString, dataFormat = model.dataFormat } of
+                Err err ->
+                    ( { model
+                        | dashboardStatus =
+                            EditingData
+                                { dataAsString = dataAsString
+                                , error = Just err
+                                }
+                      }
+                    , Cmd.none
+                    )
+
+                Ok ok ->
+                    ( { model
+                        | dashboardStatus =
+                            EditingData
+                                { dataAsString = dataAsString
+                                , error = Nothing
+                                }
+                        , people = ok.people
+                        , projects = ok.projects
+                      }
+                    , Cmd.none
+                    )
+
+        ToggleEditData ->
+            ( { model
+                | dashboardStatus =
+                    case model.dashboardStatus of
+                        EditingData _ ->
+                            Default
+
+                        _ ->
+                            EditingData
+                                { dataAsString =
+                                    Allocator.Codecs.encodeSavedToString
+                                        model
+                                        model.dataFormat
+                                , error = Nothing
+                                }
+              }
+            , Cmd.none
+            )
+
+        SaveResponse { savedAsYaml } result ->
             ( { model
                 | saveStatus = Saved result
                 , savedCounter =
@@ -240,23 +257,31 @@ update msg model =
 
                         Err _ ->
                             model.savedCounter
+                , latestSavedAsYaml =
+                    case result of
+                        Ok _ ->
+                            savedAsYaml
+
+                        Err _ ->
+                            model.latestSavedAsYaml
               }
             , Cmd.none
             )
 
         Save ->
-            case model.initialFlags.maybeConfluenceData of
+            case model.flags.maybeConflData of
                 Nothing ->
                     ( model, Cmd.none )
 
                 Just confluenceData ->
                     ( model
-                    , Allocation.Confluence.request
+                    , Allocator.Confluence.request
                         { confluenceData = confluenceData
-                        , content = "TODO"
+                        , saved = model
                         , msgResponse = SaveResponse
                         , url = model.url
                         , savedCounter = model.savedCounter
+                        , meta = model.flags.meta
                         }
                     )
 
@@ -264,7 +289,7 @@ update msg model =
             let
                 common : Common {}
                 common =
-                    Allocation.View.objectToCommon object
+                    Allocator.DataManipulation.objectToCommon object
             in
             ( { model
                 | dragState =
@@ -284,7 +309,7 @@ update msg model =
             else
                 ( { model | dragState = Static }, Cmd.none )
 
-        DragStop fraction ->
+        DragStop _ ->
             ( { model | dragState = Static }, Cmd.none )
 
         ChangeGrid gridSize ->
@@ -292,10 +317,10 @@ update msg model =
 
         ChangeCommonData object common ->
             let
-                changeCommon : Common a -> Common a
-                changeCommon p =
-                    if p.id == common.id then
-                        { p
+                changeObject : Common a -> Common a
+                changeObject obj =
+                    if obj.id == common.id then
+                        { obj
                             | name = common.name
                             , x = common.x
                             , y = common.y
@@ -303,14 +328,14 @@ update msg model =
                         }
 
                     else
-                        p
+                        obj
             in
             case object of
                 Project _ ->
-                    ( { model | projects = List.map changeCommon model.projects }, Cmd.none )
+                    ( { model | projects = List.map changeObject model.projects }, Cmd.none )
 
                 Person _ ->
-                    ( { model | people = List.map changeCommon model.people }, Cmd.none )
+                    ( { model | people = List.map changeObject model.people }, Cmd.none )
 
         ChangeRatio args ->
             ( updateRatio args model, Cmd.none )
@@ -318,8 +343,8 @@ update msg model =
         ChangeDashboardStatus dashboardStatus ->
             ( { model | dashboardStatus = dashboardStatus }, Cmd.none )
 
-        ToggleDataVisibility ->
-            ( { model | showSaved = not model.showSaved }, Cmd.none )
+        ToggleCharts ->
+            ( { model | showCharts = not model.showCharts }, Cmd.none )
 
         ToggleSnapToGrid ->
             ( { model | gridSnap = not model.gridSnap }, Cmd.none )
@@ -338,7 +363,7 @@ update msg model =
             )
 
         Reset ->
-            init model.initialFlags
+            init model.flags
 
         ChangeState state ->
             ( { model | state = state }, Cmd.none )
@@ -396,6 +421,13 @@ updateObject position model =
                     { model | people = List.map (moveObjectHelper projectOrPerson.id) model.people }
 
 
+personIdToPerson : Id -> List Person -> Maybe Person
+personIdToPerson personId people =
+    people
+        |> List.filter (\p -> p.id == personId)
+        |> List.head
+
+
 updateRatio :
     { dateAsString : DateAsString
     , personId : Id
@@ -406,7 +438,7 @@ updateRatio :
     -> Model
 updateRatio { personId, dateAsString, projectId, ratio } model =
     case
-        ( Allocation.View.personIdToPerson personId model.people
+        ( personIdToPerson personId model.people
         , String.toFloat
             (if ratio == "" then
                 "0"
@@ -420,16 +452,18 @@ updateRatio { personId, dateAsString, projectId, ratio } model =
             let
                 -- In case the "dateAsString" allocation are not created yet, we use the
                 -- closest as template.
-                result : LatestAllocation
-                result =
-                    Allocation.View.getLatestAllocation dateAsString person.allocations
+                latestAllocation : LatestAllocation
+                latestAllocation =
+                    Allocator.DataManipulation.getLatestAllocation
+                        dateAsString
+                        person.allocations
 
-                newAllocation : List ( Id, Ratio )
+                newAllocation : List ( ProjectId, Ratio )
                 newAllocation =
-                    result.allocation
+                    latestAllocation.ratiosByProjectId
                         |> Dict.fromList
                         |> Dict.update projectId
-                            (\v ->
+                            (\_ ->
                                 if ratioAsFloat == 0 then
                                     -- If the value is 0 we completely remove
                                     -- this record
@@ -440,11 +474,12 @@ updateRatio { personId, dateAsString, projectId, ratio } model =
                             )
                         |> Dict.toList
 
+                allocations : List Allocation
                 allocations =
                     person.allocations
                         |> Dict.fromList
                         |> Dict.update dateAsString
-                            (\v ->
+                            (\_ ->
                                 if List.isEmpty newAllocation then
                                     -- If the list is empty we completely remove
                                     -- this record
@@ -476,8 +511,16 @@ main : Program Flags Model Msg
 main =
     Browser.element
         { init = init
-        , view = Allocation.View.view
-        , update = update
+        , view = Allocator.View.view
+        , update =
+            \msg model ->
+                update msg model
+                    |> (\( model2, cmd2 ) ->
+                            ( update2 msg model2, cmd2 )
+                       )
+                    |> (\( ( model3, cmd3 ), cmd2 ) ->
+                            ( model3, Cmd.batch [ cmd2, cmd3 ] )
+                       )
         , subscriptions =
             \model ->
                 case model.dragState of
@@ -486,24 +529,7 @@ main =
 
                     Moving _ ->
                         Sub.batch
-                            [ Browser.Events.onMouseMove (Json.Decode.map2 DragMove decodeButtons Allocation.View.decoderMousePosition)
-                            , Browser.Events.onMouseUp (Json.Decode.map DragStop Allocation.View.decoderMousePosition)
+                            [ Browser.Events.onMouseMove Allocator.Codecs.decoderForDragMove
+                            , Browser.Events.onMouseUp Allocator.Codecs.decoderForDragStop
                             ]
         }
-
-
-decodeButtons : Json.Decode.Decoder Bool
-decodeButtons =
-    --
-    -- From https://github.com/elm/browser/blob/1.0.2/examples/src/Drag.elm#L223C1-L234C61
-    --
-    -- What happens when the user is dragging, but the "mouse up" occurs outside
-    -- the browser window? We need to stop listening for mouse movement and end the
-    -- drag. We use MouseEvent.buttons to detect this:
-    --
-    --     https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
-    --
-    -- The "buttons" value is 1 when "left-click" is pressed, so we use that to
-    -- detect zombie drags.
-    --
-    Json.Decode.field "buttons" (Json.Decode.map (\buttons -> buttons == 1) Json.Decode.int)

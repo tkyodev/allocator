@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -eu
 
 function log {
@@ -14,20 +13,20 @@ mkdir -p ${TARGET}
 mkdir -p build-generated
 
 source cmd/config
-echo "window.allocation = window.allocation || {}; window.allocation.meta=${META}" > "build-generated/GENERATED-meta.js"
+echo "window.allocator = window.allocator || {}; window.allocator.meta=${META}" > "build-generated/GENERATED-meta.js"
 echo "meta=${META}" > "${TARGET}/meta.js"
-# echo ${MY_GLOBAL_META} > "build-generated/GENERATED-meta-internal.js"
 
-log "Compiling Elm projects..."
-npx elm make elm-allocation/src/Allocation.elm        --output=build-generated/GENERATED-allocation.js     --optimize > /dev/null
+log "Compiling project..."
+npx elm make elm-allocator/src/Allocator.elm        --output=build-generated/GENERATED-allocator.js     --optimize > /dev/null
 
 log "Minifing JavaScript files..."
-node cmd/minify.js "Allocation" ${VERSION} "Commit ${COMMIT} - Built ${BUILD_TIMESTAMP_ISO}" "GENERATED-allocation.js" "starter-allocation.js" "MINIFIED-allocation.js"
+node cmd/minify.js "Allocator" ${VERSION} "Commit ${COMMIT} - Built ${BUILD_TIMESTAMP_ISO}" "GENERATED-allocator.js" "allocator-starter.js" "MINIFIED-allocator.js"
 
 log "Copying files..."
-cp build-generated/MINIFIED-allocation.js ${TARGET}/allocation.min.js 
-cp public/index.html                      ${TARGET}/index.html
-cp public/favicon.ico                     ${TARGET}/favicon.ico
+cp build-generated/MINIFIED-allocator.js ${TARGET}/allocator.min.js
+cp build-generated/MINIFIED-allocator.js ${TARGET}/allocator.${VERSION}.min.js
+cp public/index.html                     ${TARGET}/index.html
+cp public/frozen-versions/*              ${TARGET} | true
 
 log "Files available in the 'build' folder:"
 printf "\n\e[1;34m"

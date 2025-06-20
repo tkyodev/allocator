@@ -10,7 +10,7 @@ function transformCode(args) {
     if (args.withCopyright) {
         banner = `/***
  *
- *  ${args.name} v${args.version}
+ *  ${args.name} v.${args.version}
  *
  *  ${args.additionalInfo}
  *

@@ -2,6 +2,7 @@
 set -eu
 
 source cmd/config
-echo "window.allocation = window.allocation || {}; window.allocation.meta=${META}" > "build-generated/GENERATED-meta.js"
-npx concurrently --kill-others --prefixColors=auto \
-    "npx elm-watch@2.0.0-beta.6 hot allocation"
+mkdir -p build-generated
+echo "window.allocator = window.allocator || {}; window.allocator.meta=${META}" \
+    > "build-generated/GENERATED-meta.js"
+npx elm-watch@2.0.0-beta.6 hot allocator | cat

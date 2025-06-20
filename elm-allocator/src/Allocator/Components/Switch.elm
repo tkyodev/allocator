@@ -1,4 +1,4 @@
-module Allocation.Components.Switch exposing (..)
+module Allocator.Components.Switch exposing (..)
 
 import Element exposing (..)
 import Element.Background as Background
@@ -9,12 +9,12 @@ import Html.Attributes
 
 view : msg -> Bool -> String -> Element msg
 view msg checked label =
-    Input.checkbox [ mouseOver [ Background.color <| rgba 0 0 0 0.1 ], padding 4 ] <|
+    Input.checkbox [ mouseOver [ Background.color <| rgba 0 0 0 0.1 ], padding 0 ] <|
         { checked = checked
         , icon =
             toggleCheckboxWidget
                 { offColor = rgb255 187 187 187
-                , onColor = rgb255 20 180 230
+                , onColor = rgb255 18 147 216
                 , sliderColor = rgb255 255 255 255
                 , toggleHeight = 20
                 , toggleWidth = 40

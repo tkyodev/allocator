@@ -2,9 +2,9 @@
     "serve": "./public/",
     "port": 8003,
     "targets": {
-        "allocation": {
-            "inputs": ["./elm-allocation/src/Allocation.elm"],
-            "output": "./build-generated/GENERATED-allocation.js"
+        "allocator": {
+            "inputs": ["./elm-allocator/src/Allocator.elm"],
+            "output": "./build-generated/GENERATED-allocator.js"
         }
     }
 }

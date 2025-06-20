@@ -34,6 +34,7 @@ type StyleClasses
 -- lengths
 
 
+alignments : List Alignment
 alignments =
     [ Top
     , Bottom
@@ -53,6 +54,7 @@ type Location
     | Behind
 
 
+locations : List Location
 locations =
     let
         loc =
@@ -87,6 +89,7 @@ locations =
     ]
 
 
+selfName : SelfDescriptor -> String
 selfName desc =
     case desc of
         Self Top ->
@@ -108,6 +111,7 @@ selfName desc =
             dot classes.alignCenterY
 
 
+contentName : ContentDescriptor -> String
 contentName desc =
     case desc of
         Content Top ->
@@ -129,6 +133,106 @@ contentName desc =
             dot classes.contentCenterY
 
 
+classes :
+    { above : String
+    , active : String
+    , alignBottom : String
+    , alignCenterX : String
+    , alignCenterY : String
+    , alignContainerBottom : String
+    , alignContainerCenterX : String
+    , alignContainerCenterY : String
+    , alignContainerRight : String
+    , alignLeft : String
+    , alignRight : String
+    , alignTop : String
+    , alignedHorizontally : String
+    , alignedVertically : String
+    , any : String
+    , behind : String
+    , below : String
+    , bold : String
+    , borderDashed : String
+    , borderDotted : String
+    , borderNone : String
+    , borderSolid : String
+    , capturePointerEvents : String
+    , clip : String
+    , clipX : String
+    , clipY : String
+    , column : String
+    , container : String
+    , contentBottom : String
+    , contentCenterX : String
+    , contentCenterY : String
+    , contentLeft : String
+    , contentRight : String
+    , contentTop : String
+    , cursorPointer : String
+    , cursorText : String
+    , focus : String
+    , focusedWithin : String
+    , fullSize : String
+    , grid : String
+    , hasBehind : String
+    , heightContent : String
+    , heightExact : String
+    , heightFill : String
+    , heightFillPortion : String
+    , hover : String
+    , imageContainer : String
+    , inFront : String
+    , inputLabel : String
+    , inputMultiline : String
+    , inputMultilineFiller : String
+    , inputMultilineParent : String
+    , inputMultilineWrapper : String
+    , inputText : String
+    , italic : String
+    , link : String
+    , nearby : String
+    , noTextSelection : String
+    , onLeft : String
+    , onRight : String
+    , opaque : String
+    , overflowHidden : String
+    , page : String
+    , paragraph : String
+    , passPointerEvents : String
+    , root : String
+    , row : String
+    , scrollbars : String
+    , scrollbarsX : String
+    , scrollbarsY : String
+    , seButton : String
+    , single : String
+    , sizeByCapital : String
+    , spaceEvenly : String
+    , strike : String
+    , text : String
+    , textCenter : String
+    , textExtraBold : String
+    , textExtraLight : String
+    , textHeavy : String
+    , textJustify : String
+    , textJustifyAll : String
+    , textLeft : String
+    , textLight : String
+    , textMedium : String
+    , textNormalWeight : String
+    , textRight : String
+    , textSemiBold : String
+    , textThin : String
+    , textUnitalicized : String
+    , transition : String
+    , transparent : String
+    , underline : String
+    , widthContent : String
+    , widthExact : String
+    , widthFill : String
+    , widthFillPortion : String
+    , wrapped : String
+    }
 classes =
     { root = "ui"
     , any = "s"
@@ -266,6 +370,78 @@ classes =
 
 {-| The indulgent unicode character version.
 -}
+unicode :
+    { above : String
+    , alignBottom : String
+    , alignCenterX : String
+    , alignCenterY : String
+    , alignLeft : String
+    , alignRight : String
+    , alignTop : String
+    , any : String
+    , behind : String
+    , below : String
+    , bold : String
+    , borderDashed : String
+    , borderDotted : String
+    , borderNone : String
+    , borderSolid : String
+    , capturePointerEvents : String
+    , clip : String
+    , clipX : String
+    , clipY : String
+    , column : String
+    , container : String
+    , contentBottom : String
+    , contentCenterX : String
+    , contentCenterY : String
+    , contentLeft : String
+    , contentRight : String
+    , contentTop : String
+    , cursorPointer : String
+    , cursorText : String
+    , grid : String
+    , heightContent : String
+    , heightExact : String
+    , heightFill : String
+    , inFront : String
+    , italic : String
+    , noTextSelection : String
+    , onLeft : String
+    , onRight : String
+    , opaque : String
+    , page : String
+    , paragraph : String
+    , passPointerEvents : String
+    , root : String
+    , row : String
+    , scrollbars : String
+    , scrollbarsX : String
+    , scrollbarsY : String
+    , single : String
+    , spaceEvenly : String
+    , strike : String
+    , text : String
+    , textCenter : String
+    , textExtraBold : String
+    , textExtraLight : String
+    , textHeavy : String
+    , textJustify : String
+    , textJustifyAll : String
+    , textLeft : String
+    , textLight : String
+    , textMedium : String
+    , textNormalWeight : String
+    , textRight : String
+    , textSemiBold : String
+    , textThin : String
+    , textUnitalicized : String
+    , transparent : String
+    , underline : String
+    , widthContent : String
+    , widthExact : String
+    , widthFill : String
+    }
 unicode =
     { root = "style-elements"
     , any = "s"
@@ -362,6 +538,78 @@ unicode =
     }
 
 
+single :
+    { above : String
+    , alignBottom : String
+    , alignCenterX : String
+    , alignCenterY : String
+    , alignLeft : String
+    , alignRight : String
+    , alignTop : String
+    , any : String
+    , behind : String
+    , below : String
+    , bold : String
+    , borderDashed : String
+    , borderDotted : String
+    , borderNone : String
+    , borderSolid : String
+    , capturePointerEvents : String
+    , clip : String
+    , clipX : String
+    , clipY : String
+    , column : String
+    , container : String
+    , contentBottom : String
+    , contentCenterX : String
+    , contentCenterY : String
+    , contentLeft : String
+    , contentRight : String
+    , contentTop : String
+    , cursorPointer : String
+    , cursorText : String
+    , grid : String
+    , heightContent : String
+    , heightExact : String
+    , heightFill : String
+    , inFront : String
+    , italic : String
+    , noTextSelection : String
+    , onLeft : String
+    , onRight : String
+    , opaque : String
+    , page : String
+    , paragraph : String
+    , passPointerEvents : String
+    , root : String
+    , row : String
+    , scrollbars : String
+    , scrollbarsX : String
+    , scrollbarsY : String
+    , single : String
+    , spaceEvenly : String
+    , strike : String
+    , text : String
+    , textCenter : String
+    , textExtraBold : String
+    , textExtraLight : String
+    , textHeavy : String
+    , textJustify : String
+    , textJustifyAll : String
+    , textLeft : String
+    , textLight : String
+    , textMedium : String
+    , textNormalWeight : String
+    , textRight : String
+    , textSemiBold : String
+    , textThin : String
+    , textUnitalicized : String
+    , transparent : String
+    , underline : String
+    , widthContent : String
+    , widthExact : String
+    , widthFill : String
+    }
 single =
     { root = "z"
     , any = "s"
@@ -458,6 +706,7 @@ single =
     }
 
 
+describeAlignment : (Alignment -> ( List Rule, List Rule )) -> Rule
 describeAlignment values =
     let
         createDescription alignment =
@@ -476,6 +725,7 @@ describeAlignment values =
         List.concatMap createDescription alignments
 
 
+gridAlignments : (Alignment -> List Rule) -> Rule
 gridAlignments values =
     let
         createDescription alignment =
@@ -682,10 +932,12 @@ makeImportant rule =
             rule
 
 
+dot : String -> String
 dot c =
     "." ++ c
 
 
+overrides : String
 overrides =
     """@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {"""
         ++ dot classes.any
@@ -706,83 +958,80 @@ overrides =
         ++ explainer
 
 
+inputTextReset : String
 inputTextReset =
-    """
-input[type="search"],
-input[type="search"]::-webkit-search-decoration,
-input[type="search"]::-webkit-search-cancel-button,
-input[type="search"]::-webkit-search-results-button,
-input[type="search"]::-webkit-search-results-decoration {
-  -webkit-appearance:none;
-}
-"""
+    String.join "\n"
+        [ "input[type=\"search\"],"
+        , "input[type=\"search\"]::-webkit-search-decoration,"
+        , "input[type=\"search\"]::-webkit-search-cancel-button,"
+        , "input[type=\"search\"]::-webkit-search-results-button,"
+        , "input[type=\"search\"]::-webkit-search-results-decoration {"
+        , "-webkit-appearance:none;"
+        , "}"
+        ]
 
 
+sliderReset : String
 sliderReset =
-    """
-input[type=range] {
-  -webkit-appearance: none;
-  background: transparent;
-  position:absolute;
-  left:0;
-  top:0;
-  z-index:10;
-  width: 100%;
-  outline: dashed 1px;
-  height: 100%;
-  opacity: 0;
-}
-"""
+    "input[type=range] {"
+        ++ String.join ";"
+            [ "-webkit-appearance: none"
+            , "background: transparent"
+            , "position:absolute"
+            , "left:0"
+            , "top:0"
+            , "z-index:10"
+            , "width: 100%"
+            , "outline: dashed 1px"
+            , "height: 100%"
+            , "opacity: 0"
+            , "}"
+            ]
 
 
+trackReset : String
 trackReset =
-    """
-input[type=range]::-moz-range-track {
-    background: transparent;
-    cursor: pointer;
-}
-input[type=range]::-ms-track {
-    background: transparent;
-    cursor: pointer;
-}
-input[type=range]::-webkit-slider-runnable-track {
-    background: transparent;
-    cursor: pointer;
-}
-"""
+    String.join "\n"
+        [ "input[type=range]::-moz-range-track {background: transparent;cursor: pointer;}"
+        , "input[type=range]::-ms-track {background: transparent;cursor: pointer;}"
+        , "input[type=range]::-webkit-slider-runnable-track {background: transparent;cursor: pointer;}"
+        ]
 
 
+thumbReset : String
 thumbReset =
-    """
-input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    opacity: 0.5;
-    width: 80px;
-    height: 80px;
-    background-color: black;
-    border:none;
-    border-radius: 5px;
-}
-input[type=range]::-moz-range-thumb {
-    opacity: 0.5;
-    width: 80px;
-    height: 80px;
-    background-color: black;
-    border:none;
-    border-radius: 5px;
-}
-input[type=range]::-ms-thumb {
-    opacity: 0.5;
-    width: 80px;
-    height: 80px;
-    background-color: black;
-    border:none;
-    border-radius: 5px;
-}
-input[type=range][orient=vertical]{
-    writing-mode: bt-lr; /* IE */
-}
-"""
+    "input[type=range]::-webkit-slider-thumb {"
+        ++ String.join ";"
+            [ "-webkit-appearance:none"
+            , "opacity:0.5"
+            , "width:80px"
+            , "height:80px"
+            , "background-color:black"
+            , "border:none"
+            , "border-radius:5px"
+            , "}"
+            ]
+        ++ "input[type=range]::-moz-range-thumb {"
+        ++ String.join ";"
+            [ "opacity:0.5"
+            , "width:80px"
+            , "height:80px"
+            , "background-color:black"
+            , "border:none"
+            , "border-radius:5px"
+            , "}"
+            ]
+        ++ "input[type=range]::-ms-thumb {"
+        ++ String.join ";"
+            [ "opacity:0.5"
+            , "width:80px"
+            , "height:80px"
+            , "background-color:black"
+            , "border:none"
+            , "border-radius:5px"
+            , "}"
+            ]
+        ++ "input[type=range][orient=vertical]{writing-mode: bt-lr; /* IE */}"
 
 
 
@@ -809,32 +1058,22 @@ input[type=range][orient=vertical]{
 -- """
 
 
+explainer : String
 explainer =
-    """
-.explain {
-    outline: 2px solid rgba(174,121,15,0.7) !important;
-}
+    String.join "\n"
+        [ ".explain {outline: 2px solid rgba(174,121,15,0.7) !important;}"
+        , ".explain > div {outline: 2px dashed rgb(0,151,167) !important;}"
 
-.explain > div {
-    outline: 2px dashed rgb(0,151,167) !important;
-}
+        -- /* " u " is needed here because alignBottom add an <u> element */
+        , ".explain > u > div {outline: 2px dashed rgb(0,151,167) !important;}"
+        , ".explain > div > div {outline: 2px dotted rgb(230,20,250) !important;}"
 
-/* "u" is needed here because alignBottom add an <u> element */
-.explain > u > div {
-    outline: 2px dashed rgb(0,151,167) !important;
-}
-
-.explain > div > div {
-    outline: 2px dotted rgb(230,20,250) !important;
-}
-
-/* "u" is needed here because alignBottom add an <u> element */
-.explain > u > div > div {
-    outline: 2px dotted rgb(230,20,250) !important;
-}
-"""
+        -- /* " u " is needed here because alignBottom add an <u> element */
+        , ".explain > u > div > div {outline: 2px dotted rgb(230,20,250) !important;}"
+        ]
 
 
+commonValues : List Class
 commonValues =
     List.concat
         [ List.map
@@ -874,6 +1113,7 @@ commonValues =
         ]
 
 
+fontVariant : String -> List Class
 fontVariant var =
     [ Class (".v-" ++ var)
         [ Prop "font-feature-settings" ("\"" ++ var ++ "\"")
@@ -890,6 +1130,7 @@ rules =
         ++ renderCompact (baseSheet ++ commonValues)
 
 
+elDescription : List Rule
 elDescription =
     [ Prop "display" "flex"
     , Prop "flex-direction" "column"
@@ -983,6 +1224,7 @@ elDescription =
     ]
 
 
+baseSheet : List Class
 baseSheet =
     [ Class "html,body"
         [ Prop "height" "100%"

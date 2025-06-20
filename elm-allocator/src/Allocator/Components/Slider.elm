@@ -1,10 +1,9 @@
-module Allocation.Components.Slider exposing (..)
+module Allocator.Components.Slider exposing (..)
 
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Input as Input
-import Html.Attributes
 
 
 view :

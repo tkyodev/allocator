@@ -51,48 +51,40 @@ import Simplify
 
 config : List Rule
 config =
-    [ NoImportingEverything.rule
-        [ "Element"
-        ]
+    [ NoAlways.rule
+    , NoFloatIds.rule
+    , NoImportingEverything.rule [ "Element", "Allocator.Types" ]
+    , NoMissingSubscriptionsCall.rule |> Review.Rule.ignoreErrorsForDirectories []
     , NoMissingTypeAnnotation.rule
     , NoMissingTypeAnnotationInLetIn.rule
+    , NoMissingTypeConstructor.rule
     , NoMissingTypeExpose.rule
-
-    -- , NoMissingTypeConstructor.rule
-    , NoUnused.CustomTypeConstructors.rule []
-    , NoUnused.CustomTypeConstructorArgs.rule
-        |> Review.Rule.ignoreErrorsForFiles
-            []
+    , NoModuleOnExposedNames.rule
+    , NoPrematureLetComputation.rule
+    , NoRecursiveUpdate.rule
+    , NoSimpleLetBody.rule
+    , NoSinglePatternCase.rule NoSinglePatternCase.fixInArgument
+    , NoUnapprovedLicense.rule { allowed = [ "BSD-3-Clause", "MIT", "Apache-2.0", "ISC", "MPL-2.0" ], forbidden = [ "GPL-3.0-only", "GPL-3.0-or-later" ] }
+    , NoUnsafePorts.rule NoUnsafePorts.any |> Review.Rule.ignoreErrorsForFiles []
     , NoUnused.Dependencies.rule
     , NoUnused.Exports.rule
-        |> Review.Rule.ignoreErrorsForFiles
-            [ "elm-translations/src/Translations.elm" ]
     , NoUnused.Modules.rule
     , NoUnused.Parameters.rule
     , NoUnused.Patterns.rule
     , NoUnused.Variables.rule
     , NoUnusedPorts.rule
-    , NoSimpleLetBody.rule
-    , NoAlways.rule
     , NoUselessSubscriptions.rule
-
-    -- , NoUnoptimizedRecursion.rule (NoUnoptimizedRecursion.optOutWithComment "IGNORE TCO")
-    , NoPrematureLetComputation.rule
     , Simplify.rule Simplify.defaults
 
-    -- , NoMissingSubscriptionsCall.rule |> Review.Rule.ignoreErrorsForDirectories []
-    -- , NoDuplicatePorts.rule
-    , NoUnsafePorts.rule NoUnsafePorts.any |> Review.Rule.ignoreErrorsForFiles []
-    , NoFloatIds.rule
-    , NoRecursiveUpdate.rule
-    , NoModuleOnExposedNames.rule
-    , NoSinglePatternCase.rule NoSinglePatternCase.fixInArgument
-    , NoPrimitiveTypeAlias.rule
-    , NoRecordAliasConstructor.rule
-    , NoUnapprovedLicense.rule { allowed = [ "BSD-3-Clause", "MIT", "Apache-2.0", "ISC", "MPL-2.0" ], forbidden = [ "GPL-3.0-only", "GPL-3.0-or-later" ] }
-    , NoExposingEverything.rule |> Review.Rule.ignoreErrorsForFiles []
-    , NoUnsortedConstructors.rule
-    , NoUnsortedRecordFields.rule
+    -- , NoUnused.CustomTypeConstructors.rule []
+    -- , NoUnused.CustomTypeConstructorArgs.rule
+    -- , NoPrimitiveTypeAlias.rule
+    -- , NoRecordAliasConstructor.rule
+    -- , NoExposingEverything.rule |> Review.Rule.ignoreErrorsForFiles []
+    -- , NoUnsortedConstructors.rule
+    -- , NoUnsortedRecordFields.rule
+    , NoDuplicatePorts.rule
+    , NoUnoptimizedRecursion.rule (NoUnoptimizedRecursion.optOutWithComment "IGNORE TCO")
     ]
         |> List.map
             (\rule ->

@@ -3,6 +3,7 @@ elm_modules
 elm-stuff
 /build-*
 /build/
+/docs/
 Elmjutsu*
 .DS_Store
 

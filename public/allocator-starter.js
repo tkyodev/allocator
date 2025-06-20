@@ -1,6 +1,6 @@
 (function() {
-    const AppName = "allocation-app"
-    const ElmApp = Elm.Allocation;
+    const AppName = "allocator-app"
+    const ElmApp = Elm.Allocator;
     
     let parentNode = document.querySelector(AppName);
     if (!parentNode) {
@@ -18,11 +18,11 @@
     const App = ElmApp.init(
         { node: node
         , flags: 
-            { saved: saved
+            { saved: typeof saved === "undefined" ? "saved is undefined" : saved
             , posix: Date.now()
             , href: location.href
-            , meta: allocation.meta
-            , maybeConfluenceData: 
+            , meta: allocator.meta
+            , maybeConflData: 
                 { pageTitle: getMetaContent("ajs-page-title")
                 , spaceKey: getMetaContent("ajs-space-key")
                 , pageId: getMetaContent("ajs-page-id")
@@ -30,7 +30,7 @@
                 , pageVersion: getMetaContent("ajs-page-version")
                 , parentPageId: getMetaContent("ajs-parent-page-id")
                 , contentType: getMetaContent("ajs-content-type")
-                , dataMacroId: dataMacroId
+                , dataMacroId: typeof dataMacroId === "undefined" ? "dataMacroId is undefined" : dataMacroId
                 }
             }
         }

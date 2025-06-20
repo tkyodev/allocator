@@ -1,6 +1,6 @@
-module Allocation.Types exposing (..)
+module Allocator.Types exposing (..)
 
-import Allocation.Confluence
+import Dict
 import Http
 import Time
 import Url
@@ -12,8 +12,8 @@ type alias Model =
         , y : Float
         , scale : Float
         , state : State
-        , showSaved : Bool
-        , initialFlags : Flags
+        , showCharts : Bool
+        , flags : Flags
         , posix : Time.Posix
         , currentDate : DateAsString
         , dashboardStatus : DashboardStatus
@@ -24,6 +24,7 @@ type alias Model =
         , gridSize : Int
         , gridSnap : Bool
         , savedCounter : Int
+        , latestSavedAsYaml : String
         }
 
 
@@ -31,6 +32,18 @@ type alias Saved a =
     { a
         | people : List Person
         , projects : List Project
+    }
+
+
+type alias ConfluenceData =
+    { pageTitle : String
+    , spaceKey : String
+    , pageId : String
+    , spaceName : String
+    , pageVersion : String
+    , parentPageId : String
+    , contentType : String
+    , dataMacroId : String
     }
 
 
@@ -51,8 +64,12 @@ type alias Common a =
         , hidden : Bool
         , x : Float
         , y : Float
-        , color : String
+        , color : ColorType
     }
+
+
+type alias ColorType =
+    ( Int, Int, Int )
 
 
 type alias Id =
@@ -81,7 +98,7 @@ type alias Flags =
     , posix : Int
     , href : String
     , meta : Meta
-    , maybeConfluenceData : Maybe Allocation.Confluence.ConfluenceData
+    , maybeConflData : Maybe ConfluenceData
     }
 
 
@@ -98,8 +115,9 @@ type alias Meta =
 
 type DashboardStatus
     = Default
-    | EditingPerson Id DateAsString
-    | EditingProject Id DateAsString
+    | EditingPerson PersonId DateAsString
+    | EditingProject ProjectId DateAsString
+    | EditingData { dataAsString : String, error : Maybe String }
 
 
 type DataFormat
@@ -128,7 +146,7 @@ type Object
 
 
 type alias LatestAllocation =
-    { latest : String, allocation : List ( Id, Ratio ) }
+    { latest : String, ratiosByProjectId : List ( ProjectId, Ratio ) }
 
 
 type Msg
@@ -140,15 +158,17 @@ type Msg
     | ChangeState State
     | ChangeGrid Int
     | Reset
-    | ToggleDataVisibility
+    | EditData String
+    | ToggleEditData
     | ToggleDataFormat
     | ToggleSnapToGrid
+    | ToggleCharts
     | ChangeDashboardStatus DashboardStatus
     | DragStart Object { x : Float, y : Float }
     | DragMove Bool { x : Float, y : Float }
     | DragStop { x : Float, y : Float }
     | Save
-    | SaveResponse (Result Http.Error String)
+    | SaveResponse { savedAsYaml : String } (Result Http.Error String)
 
 
 type alias ProjectId =
@@ -157,3 +177,17 @@ type alias ProjectId =
 
 type alias PersonId =
     String
+
+
+type alias Data =
+    ( Int, Dict.Dict ProjectId Ratio )
+
+
+type alias PreCompiute =
+    { latestAllocationsByPersonId : Dict.Dict PersonId LatestAllocation
+    , latestAllocationsByProjectId : Dict.Dict ProjectId (List ( PersonId, Ratio ))
+    , projectsAsDict : Dict.Dict ProjectId Project
+    , peopleAsDict : Dict.Dict PersonId Person
+    , getProject : ProjectId -> Maybe Project
+    , getPerson : PersonId -> Maybe Person
+    }

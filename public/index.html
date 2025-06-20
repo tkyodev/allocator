@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <title>Allocation</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+    <title>Allocator</title>
     <meta name="ajs-page-title" content="ajs-page-title">
     <meta name="ajs-space-key" content="ajs-space-key">
     <meta name="ajs-page-id" content="ajs-page-id">
@@ -15,17 +15,167 @@
 </head>
 <body>
 
+<!-- Confluence HTML START -->
+<allocator-app></allocator-app>
+<script>dataMacroId = "ADD-MACRO-ID-HERE"
+saved=`people:
+  - allocations:
+      - - 2025-06-01
+        - - - prj1
+            - 30
+          - - prj4
+            - 70
+      - - 2025-06-04
+        - - - prj1
+            - 30
+          - - prj2
+            - 20
+          - - prj4
+            - 50
+      - - 2025-06-06
+        - - - prj1
+            - 10
+          - - prj2
+            - 30
+          - - prj4
+            - 60
+      - - 2025-06-08
+        - - - prj1
+            - 10
+          - - prj3
+            - 90
+      - - 2025-06-10
+        - - - prj1
+            - 40
+          - - prj3
+            - 60
+      - - 2025-06-17
+        - - - prj1
+            - 50
+          - - prj3
+            - 40
+          - - prj5
+            - 10
+    color:
+      - 77
+      - 199
+      - 255
+    hidden: false
+    id: p01
+    name: Person A
+    x: 80
+    y: 80
+  - allocations:
+      - - 2025-06-10
+        - - - prj2
+            - 5
+          - - prj3
+            - 25
+          - - prj4
+            - 30
+          - - prj5
+            - 40
+      - - 2025-06-15
+        - - - prj2
+            - 10
+          - - prj3
+            - 20
+          - - prj4
+            - 30
+          - - prj5
+            - 40
+      - - 2025-06-20
+        - - - prj2
+            - 20
+          - - prj3
+            - 50
+          - - prj4
+            - 30
+    color:
+      - 255
+      - 153
+      - 51
+    hidden: false
+    id: p02
+    name: Person B
+    x: 560
+    y: 80
+  - allocations:
+      - - 2025-05-16
+        - - - prj1
+            - 50
+          - - prj2
+            - 30
+          - - prj4
+            - 20
+      - - 2025-06-16
+        - - - prj1
+            - 20
+          - - prj2
+            - 60
+          - - prj4
+            - 20
+    color:
+      - 102
+      - 204
+      - 0
+    hidden: false
+    id: p03
+    name: Person C
+    x: 1040
+    y: 80
+projects:
+  - color:
+      - 77
+      - 199
+      - 255
+    hidden: false
+    id: prj1
+    name: Project A
+    x: 80
+    y: 540
+  - color:
+      - 255
+      - 153
+      - 51
+    hidden: false
+    id: prj2
+    name: Project B
+    x: 360
+    y: 540
+  - color:
+      - 50
+      - 120
+      - 200
+    hidden: false
+    id: prj3
+    name: Project C
+    x: 640
+    y: 540
+  - color:
+      - 255
+      - 80
+      - 80
+    hidden: false
+    id: prj4
+    name: Project D
+    x: 920
+    y: 540
+  - color:
+      - 102
+      - 204
+      - 0
+    hidden: false
+    id: prj5
+    name: Project E
+    x: 1200
+    y: 540`</script>
+<!-- <script src='https://tkyodev.github.io/allocator/allocator.{{VERSION}}.min.js'></script> -->
+<!-- Confluence HTML END -->
+
 <script src="meta.js"></script>
-<!-- Confluence MACRO START -->
-<allocation-app></allocation-app>
-<script>
-    dataMacroId = "4b3fdea8-1012-4404-843c-5963e135ce10";
-    saved = `
-`;
-</script>
-<script src="allocation.min.js"></script>
-<!-- Confluence MACRO END -->
-<script src="starter-allocation.js"></script>
+<script src="allocator.min.js"></script>
+<script src="allocator-starter.js"></script>
 
 </body>
 </html>

@@ -1,4 +1,4 @@
 #!/bin/bash
 set -eu
 
-npx surge build allocation.surge.sh
+npx surge docs resources-allocator.surge.sh
